@@ -1,0 +1,51 @@
+version: '2'
+services:
+  n8n-postgres:
+    image: postgres:11
+    hostname: n8n-postgres
+    ports:
+      - 127.0.0.1:5432:5432
+    environment:
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DBNAME=n8n
+    volumes:
+      - ./n8n-postgres/postgresql_init_data:/docker-entrypoint-initdb.d
+      - ./n8n-postgres/postgresql_data:/var/lib/postgresql/data:Z
+  rabbitmq:
+    image: rabbitmq:3.8-management
+    hostname: rabbitmq
+    ports:
+      - 127.0.0.1:5672:5672
+      - 127.0.0.1:15672:15672
+  n8n:
+    image: n8nio/n8n
+    hostname: n8n
+    ports:
+        - 127.0.0.1:5678:5678
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=n8n-postgres
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_SCHEMA=public
+    volumes:
+      - ~/.n8n:/home/node/.n8n
+    depends_on:
+      - n8n-postgres
+  download-new-data-from-url:
+    image: ghcr.io/klips-project/mqm-worker/download-new-data-from-url:latest
+    volumes:
+      - ../data:/home/data:Z
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+  gunzip-file:
+    image: ghcr.io/klips-project/mqm-worker/gunzip-file:latest
+    volumes:
+      - ../data:/home/data:Z
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
