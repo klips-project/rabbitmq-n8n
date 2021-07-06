@@ -66,5 +66,41 @@ services:
       - RESULTSQUEUE=results
   geoserver:
     image: terrestris/geoserver:2.19.0
+    hostname: geoserver
     volumes:
       - ./geoserver_data:/opt/geoserver_data:Z
+#  geonetwork-publish-metadata:
+#    image: ghcr.io/klips-project/mqm-worker/geonetwork-publish-metadata:latest
+#    depends_on:
+#      - rabbitmq
+#      - geonetwork
+#    restart: unless-stopped
+#    environment:
+#      - GNHOST=http://localhost:1234/geonetwork/srv/
+#      - GNUSER=admin
+#      - GNPASS=admin
+#      - RABBITHOST=amqp://rabbitmq
+#      - WORKERQUEUE=geonetwork-publish-metadata
+#      - RESULTSQUEUE=results
+#  postgis:
+#    image: postgis/postgis:13-3.0
+#    hostname: postgis
+#    environment:
+#      POSTGRES_USER: geonetwork
+#      POSTGRES_PASSWORD: geonetwork
+#      POSTGRES_DBNAME: geonetwork
+#    volumes:
+#      - ./postgis/postgresql_data:/var/lib/postgresql/data:Z
+#      - ./postgis/init_data:/docker-entrypoint-initdb.d
+#  geonetwork:
+#    image: geonetwork:3.10-postgres
+#    hostname: geonetwork
+#    ports:
+#      - 127.0.0.1:1234:8080
+#    environment:
+#      POSTGRES_DB_HOST: postgis
+#      POSTGRES_DB_NAME: geonetwork
+#      POSTGRES_DB_USERNAME: geonetwork
+#      POSTGRES_DB_PASSWORD: geonetwork
+#    depends_on:
+#      - postgis
