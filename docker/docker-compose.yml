@@ -64,6 +64,22 @@ services:
       - RABBITHOST=amqp://rabbitmq
       - WORKERQUEUE=geoserver-publish-sld
       - RESULTSQUEUE=results
+  send-email:
+    image: ghcr.io/klips-project/mqm-worker/send-email:latest
+    environment:
+      - RABBITHOST=amqp://rabbitmq
+      - WORKERQUEUE=send-email
+      - RESULTSQUEUE=results
+      - MAILHOST=mail.organization.de
+      - MAILPORT=587
+      - SECURE=false
+      - AUTHUSER=user@organization.de
+      - AUTHPASS=🔑
+      - FROMSENDERNAME=Organization
+      - FROMSENDEREMAIL=no-reply@organization.de
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
   geoserver:
     image: terrestris/geoserver:2.19.0
     volumes:
